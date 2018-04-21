@@ -59,6 +59,8 @@ def get_args():
                     help='Disable CUDA')
     parser.add_argument('-print_freq', type=int, default=10)
     parser.add_argument('-pretrained', type=str, default="")
+    parser.add_argument('-dataset', type=str, default="MNIST")
+    
     parser.add_argument('-gpu', type=int, default=0, help = "which gpu to use") 
     args = parser.parse_args()
     args.use_cuda = not args.disable_cuda and torch.cuda.is_available()

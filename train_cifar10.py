@@ -15,12 +15,11 @@ from torch.optim import lr_scheduler
 
 from Capsules import PrimaryCaps, ConvCaps
 from utils import get_args, get_dataloader
-import torchvision as vision
 
 class CapsNet(nn.Module):
-    def __init__(self,in_channels=1,A=32,B=32,C=32,D=32, E=10,r = 3):
+    def __init__(self,A=32,B=32,C=32,D=32, E=10,r = 3):
         super(CapsNet, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=in_channels, out_channels=A,
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=A,
                                kernel_size=5, stride=2)
         self.primary_caps = PrimaryCaps(A,B)
         self.convcaps1 = ConvCaps(B, C, kernel = 3, stride=2,iteration=r,
@@ -55,62 +54,17 @@ class CapsNet(nn.Module):
 
 if __name__ == "__main__":
     args = get_args()
+    train_loader, test_loader = get_dataloader(args)
+    
 
-    if args.dataset=='CIFAR10':
-        transform = vision.transforms.ToTensor()
-        train_data = vision.datasets.CIFAR10(root, train=True, transform=transform )
-        test_data = vision.datasets.CIFAR10(root, train=True, transform=transform )
-        train_loader = torch.utils.data.DataLoader(dataset=train_data,
-                                               batch_size=args.batch_size,
-                                               shuffle=True)
-
-        test_loader = torch.utils.data.DataLoader(dataset=test_data,
-                                                  batch_size=args.batch_size,
-                                                  shuffle=True)
-        use_cuda = args.use_cuda
-        steps = len(train_loader.dataset)//args.batch_size
-        lambda_ = 1e-3 #TODO:find a good schedule to increase lambda and m
-        m = 0.2
-        A,B,C,D,E,r = 64,8,16,16,10,args.r # a small CapsNet
-    #    A,B,C,D,E,r = 32,32,32,32,10,args.r # a classic CapsNet
-        model = CapsNet(3,A,B,C,D,E,r)
-    elif args.dataset=='MNIST':
-        transform = vision.transforms.ToTensor()
-        train_data = vision.datasets.CIFAR10(root, train=True, transform=transform )
-        test_data = vision.datasets.CIFAR10(root, train=True, transform=transform )
-        train_loader = torch.utils.data.DataLoader(dataset=train_data,
-                                               batch_size=args.batch_size,
-                                               shuffle=True)
-
-        test_loader = torch.utils.data.DataLoader(dataset=test_data,
-                                                  batch_size=args.batch_size,
-                                                  shuffle=True)
-        use_cuda = args.use_cuda
-        steps = len(train_loader.dataset)//args.batch_size
-        lambda_ = 1e-3 #TODO:find a good schedule to increase lambda and m
-        m = 0.2
-        A,B,C,D,E,r = 64,8,16,16,10,args.r # a small CapsNet
-    #    A,B,C,D,E,r = 32,32,32,32,10,args.r # a classic CapsNet
-        model = CapsNet(1,A,B,C,D,E,r)
-    elif args.dataset=='SVHN':
-        transform = vision.transforms.ToTensor()
-        train_data = vision.datasets.CIFAR10(root, train=True, transform=transform )
-        test_data = vision.datasets.CIFAR10(root, train=True, transform=transform )
-        train_loader = torch.utils.data.DataLoader(dataset=train_data,
-                                               batch_size=args.batch_size,
-                                               shuffle=True)
-
-        test_loader = torch.utils.data.DataLoader(dataset=test_data,
-                                                  batch_size=args.batch_size,
-                                                  shuffle=True)
-        use_cuda = args.use_cuda
-        steps = len(train_loader.dataset)//args.batch_size
-        lambda_ = 1e-3 #TODO:find a good schedule to increase lambda and m
-        m = 0.2
-        A,B,C,D,E,r = 64,8,16,16,10,args.r # a small CapsNet
-    #    A,B,C,D,E,r = 32,32,32,32,10,args.r # a classic CapsNet
-        model = CapsNet(3,A,B,C,D,E,r)
-
+    
+    use_cuda = args.use_cuda
+    steps = len(train_loader.dataset)//args.batch_size
+    lambda_ = 1e-3 #TODO:find a good schedule to increase lambda and m
+    m = 0.2
+    A,B,C,D,E,r = 64,8,16,16,10,args.r # a small CapsNet
+#    A,B,C,D,E,r = 32,32,32,32,10,args.r # a classic CapsNet
+    model = CapsNet(A,B,C,D,E,r)
     with torch.cuda.device(args.gpu):
 #        print(args.gpu, type(args.gpu))
         if args.pretrained:
