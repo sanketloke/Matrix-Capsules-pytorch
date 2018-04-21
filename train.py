@@ -19,6 +19,10 @@ import torchvision as vision
 from torchvision import transforms
 from pdb import set_trace as st
 import numpy as np
+from logger import Logger
+
+logger = Logger('./logs')
+
 
 class CapsNet(nn.Module):
     def __init__(self,in_channels=1,A=32,B=32,C=32,D=32, E=10,r = 3):
@@ -156,6 +160,7 @@ if __name__ == "__main__":
                     m += 2e-3/steps
                 optimizer.zero_grad()
                 imgs,labels = data #b,1,28,28; #b
+
                 imgs,labels = Variable(imgs),Variable(labels)
                 imgs = batchnorm(imgs)
                 if use_cuda:
@@ -176,6 +181,25 @@ if __name__ == "__main__":
                 if b % args.print_freq == 0:
                     print("batch:{}, loss:{:.4f}, acc:{:}/{} : {}".format(
                             b, loss.data[0],acc, args.batch_size, float(acc)/args.batch_size))
+                    info = {
+                            'loss': loss.data[0],
+                            'accuracy': float(acc)/args.batch_size
+                        }
+                    for tag, value in info.items():
+                        logger.scalar_summary(tag, value, b)
+
+                    for tag, value in model.named_parameters():
+                        tag = tag.replace('.', '/')
+                        logger.histo_summary(tag, to_np(value), step+1)
+                        logger.histo_summary(tag+'/grad', to_np(value.grad), step+1)
+
+                    # (3) Log the images
+                    info = {
+                        'images': to_np(data[0].view(-1, 28, 28)[:10])
+                    }
+
+                    for tag, images in info.items():
+                        logger.image_summary(tag, images, step+1)
             acc = correct/len(train_loader.dataset)
             print("Epoch{} Train acc:{:4}".format(epoch, acc))
             scheduler.step(acc)
