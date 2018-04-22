@@ -21,7 +21,7 @@ from pdb import set_trace as st
 import numpy as np
 from logger import Logger
 from time import gmtime, strftime
-from networks import CapsNet
+from networks import CapsNet,LeNet5
 
 def to_np(x):
     return x.data.cpu().numpy()
@@ -49,7 +49,10 @@ def validate(test_loader,model,samples = 20):
             imgs = imgs.cuda()
             labels = labels.cuda()
         out = model(imgs,lambda_) #b,10,17
-        out_poses, out_labels = out[:,:-10],out[:,-10:] #b,16*10; b,10
+        if type(model)==LeNet5:
+            out_labels  = out
+        else:
+            out_poses, out_labels = out[:,:-10],out[:,-10:] #b,16*10; b,10
         loss = model.loss(out_labels, labels, m)
         pred = out_labels.max(1)[1] #b
         acc = pred.eq(labels).cpu().sum().data[0]
@@ -99,11 +102,14 @@ if __name__ == "__main__":
     lambda_ = args.lambda_ #1e-3 #TODO:find a good schedule to increase lambda and m
     m = args.m #0.2
 
+    if args.model=='MatrixCaps':
+        if args.custom==0:
+            model = CapsNet(n_channels,A,B,C,D,E,r)
+        else:
+            model = CapsNet(n_channels,args.A,args.B,args.C,args.D,args.E,r)
+    elif args.model=='CNN':
+        model = LeNet5()
 
-    if args.custom==0:
-        model = CapsNet(n_channels,A,B,C,D,E,r)
-    else:
-        model = CapsNet(n_channels,args.A,args.B,args.C,args.D,args.E,r)
     use_cuda = args.use_cuda
     steps = len(train_loader.dataset)//args.batch_size
 
@@ -141,7 +147,10 @@ if __name__ == "__main__":
                     imgs = imgs.cuda()
                     labels = labels.cuda()
                 out = model(imgs,lambda_) #b,10,17
-                out_poses, out_labels = out[:,:-10],out[:,-10:] #b,16*10; b,10
+                if type(model)==LeNet5:
+                    out_labels  = out
+                else:
+                    out_poses, out_labels = out[:,:-10],out[:,-10:] #b,16*10; b,10
                 loss = model.loss(out_labels, labels, m)
                 torch.nn.utils.clip_grad_norm(model.parameters(), args.clip)
                 loss.backward()

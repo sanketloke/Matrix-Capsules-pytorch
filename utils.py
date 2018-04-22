@@ -61,6 +61,7 @@ def get_args():
     parser.add_argument('-pretrained', type=str, default="")
     parser.add_argument('-dataset', type=str, default="MNIST")
     parser.add_argument('-val_acc', type=int, default=10)
+    parser.add_argument('-model', type=str, default="MatrixCaps")
     parser.add_argument('-fname', type=str, default="")
     parser.add_argument('-lambda_', type=float, default=1e-3)
     parser.add_argument('-m', type=float, default=0.2)
