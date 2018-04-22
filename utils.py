@@ -60,6 +60,22 @@ def get_args():
     parser.add_argument('-print_freq', type=int, default=10)
     parser.add_argument('-pretrained', type=str, default="")
     parser.add_argument('-dataset', type=str, default="MNIST")
+    parser.add_argument('-val_acc', type=int, default=10)
+    parser.add_argument('-fname', type=str, default="")
+    parser.add_argument('-lambda_', type=float, default=1e-3)
+    parser.add_argument('-m', type=float, default=0.2)
+    parser.add_argument('-val_freq', type=int, default=10)
+    parser.add_argument('-dist_freq', type=int, default=0)
+    parser.add_argument('-custom', type=int, default=0)
+    parser.add_argument('-A', type=int, default=32)
+    parser.add_argument('-B', type=int, default=32)
+    parser.add_argument('-C', type=int, default=32)
+    parser.add_argument('-D', type=int, default=32)
+    parser.add_argument('-E', type=int, default=10)
+    
+    
+    
+    
     
     parser.add_argument('-gpu', type=int, default=0, help = "which gpu to use") 
     args = parser.parse_args()

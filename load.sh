@@ -12,5 +12,5 @@ echo $CUDA_VISIBLE_DEVICES
 #python train.py "smallNORB"
 #python eval_accuracy.py "smallNORB"
 
-python train.py -batch_size=64 -lr=2e-2 -num_epochs=50 -r=2 -print_freq=1 -dataset='SVHN' -clip=0.1
+python train.py -batch_size=64 -lr=2e-2 -num_epochs=50 -r=1 -print_freq=1 -dataset='MNIST' -dist_freq=2 -fname=mnist_test
 
