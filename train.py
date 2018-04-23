@@ -37,7 +37,7 @@ def adjust_learning_rate(optimizer, iter, total,power=0.9):
         param_group['lr'] = lr
 
 def validate(test_loader,model,samples = 20):
-    i = 0
+    i = 1
     model.eval()
     correct = 0
     for data in test_loader:
@@ -54,12 +54,13 @@ def validate(test_loader,model,samples = 20):
         else:
             out_poses, out_labels = out[:,:-10],out[:,-10:] #b,16*10; b,10
         loss = model.loss(out_labels, labels, m)
+        l2 = float(out_labels.size()[0])
         pred = out_labels.max(1)[1] #b
         acc = pred.eq(labels).cpu().sum().data[0]
         correct += acc
         i += 1
-    model.train()        
-    acc = correct/samples
+    model.train()
+    acc = correct/(samples*l2)
     return acc
 
 if __name__ == "__main__":
@@ -73,7 +74,7 @@ if __name__ == "__main__":
     if args.dataset=='CIFAR10':
         transform = vision.transforms.ToTensor()
         train_data = vision.datasets.CIFAR10(".", train=True, transform=transform, download=True )
-        test_data = vision.datasets.CIFAR10(".", train=False, transform=transform ,download=True)        
+        test_data = vision.datasets.CIFAR10(".", train=False, transform=transform ,download=True)
         A,B,C,D,E,r = 32,8,16,16,10,2 #args.r # a small CapsNet
         n_channels =3
     elif args.dataset=='MNIST':
@@ -88,7 +89,7 @@ if __name__ == "__main__":
         test_data = vision.datasets.SVHN(".", split='test', transform=transform , download=True)
         n_channels =3
         A,B,C,D,E,r = 64,8,16,16,10,args.r # a small CapsNet
-    
+
 
     train_loader = torch.utils.data.DataLoader(dataset=train_data,
                                            batch_size=args.batch_size,
@@ -171,7 +172,7 @@ if __name__ == "__main__":
                         logger.scalar_summary(tag, value, b)
 
                 if b % args.val_freq == 0:
-                    val_acc = validate(test_loader,model,samples=1)
+                    val_acc = validate(test_loader,model,samples= 20 )
                     info = {
                             'val_acc': val_acc
                         }
