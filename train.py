@@ -203,7 +203,10 @@ if __name__ == "__main__":
                     imgs = imgs.cuda()
                     labels = labels.cuda()
                 out = model(imgs,lambda_) #b,10,17
-                out_poses, out_labels = out[:,:-10],out[:,-10:] #b,16*10; b,10
+                if type(model)==LeNet5:
+                    out_labels  = out
+                else:
+                    out_poses, out_labels = out[:,:-10],out[:,-10:] #b,16*10; b,10
                 loss = model.loss(out_labels, labels, m)
                 #stats
                 pred = out_labels.max(1)[1] #b
